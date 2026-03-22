@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>nostkey - Passkey Login for Nostr</title>
+  <title>keytr - Passkey Login for Nostr</title>
   <meta name="description" content="Encrypt your Nostr private key with a passkey. Log in to any client with just your fingerprint or face.">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -11,24 +11,24 @@
 <main>
 
   <header>
-    <h1>nost<span>key</span></h1>
+    <h1>key<span>tr</span></h1>
     <p>Encrypt your nsec with a passkey. Log in to any Nostr client with your fingerprint.</p>
   </header>
 
   <section>
     <h2>The Problem</h2>
     <p>Nostr private keys (nsec) are hard to manage. You have to copy them between devices, paste them into clients, and hope nothing leaks. One mistake and your identity is compromised forever.</p>
-    <p><strong>nostkey fixes this.</strong> Your nsec gets encrypted with a passkey (fingerprint, Face ID, hardware key) and published to Nostr relays. On any new device, authenticate with your passkey to decrypt. No seed phrases. No clipboard. No extensions.</p>
+    <p><strong>keytr fixes this.</strong> Your nsec gets encrypted with a passkey (fingerprint, Face ID, hardware key) and published to Nostr relays. On any new device, authenticate with your passkey to decrypt. No seed phrases. No clipboard. No extensions.</p>
   </section>
 
   <section>
     <h2>How It Works</h2>
     <ol class="flow-steps">
-      <li>Generate or import your nsec in any nostkey-compatible client</li>
-      <li>Register a passkey &mdash; your device creates a credential bound to a gateway (e.g. <code>nostkey.org</code>) or the client's own domain</li>
+      <li>Generate or import your nsec in any keytr-compatible client</li>
+      <li>Register a passkey &mdash; your device creates a credential bound to a gateway (e.g. <code>keytr.org</code>) or the client's own domain</li>
       <li>Your nsec is encrypted using a key derived from the passkey's PRF extension</li>
       <li>The encrypted blob is published as a kind:30079 event to your relays</li>
-      <li>On a new device, open any nostkey-compatible client and tap "Login with Passkey"</li>
+      <li>On a new device, open any keytr-compatible client and tap "Login with Passkey"</li>
       <li>Your passkey syncs via iCloud/Google/Windows &mdash; authenticate to decrypt your nsec</li>
     </ol>
   </section>
@@ -49,12 +49,12 @@
 
   <section>
     <h2>Federated Cross-Client Login</h2>
-    <p>WebAuthn binds passkey outputs to the domain (rpId) they were created on. To enable cross-client login, nostkey uses a <strong>federated gateway model</strong>.</p>
+    <p>WebAuthn binds passkey outputs to the domain (rpId) they were created on. To enable cross-client login, keytr uses a <strong>federated gateway model</strong>.</p>
     <p>Any domain can become a <strong>passkey gateway</strong> by hosting a <code>/.well-known/webauthn</code> file that lists authorized client origins. Multiple gateways can coexist &mdash; no single domain controls the protocol.</p>
     <div class="crypto-detail">
       <h3>Gateway Federation</h3>
       <ul>
-        <li><strong>nostkey.org</strong> &mdash; gateway operated by sovIT</li>
+        <li><strong>keytr.org</strong> &mdash; gateway operated by sovIT</li>
         <li><strong>Any other domain</strong> &mdash; anyone can run their own gateway</li>
         <li><strong>Standalone</strong> &mdash; clients can use their own domain as rpId</li>
       </ul>
@@ -63,7 +63,7 @@
     <pre><code>// Client uses a gateway as rpId
 navigator.credentials.create({
   publicKey: {
-    rp: { id: "nostkey.org", name: "nostkey" },
+    rp: { id: "keytr.org", name: "keytr" },
     extensions: {
       prf: { eval: { first: salt } }
     }
@@ -103,7 +103,7 @@ navigator.credentials.create({
   "content": "&lt;base64 encrypted nsec blob&gt;",
   "tags": [
     ["d", "&lt;credential-id&gt;"],
-    ["rp", "nostkey.org"],
+    ["rp", "keytr.org"],
     ["algo", "aes-256-gcm"],
     ["kdf", "hkdf-sha256"],
     ["v", "1"]
@@ -115,14 +115,14 @@ navigator.credentials.create({
   <section>
     <h2>For Client Developers</h2>
     <div class="client-section">
-      <p>Integrate nostkey into your Nostr client with a few lines:</p>
-      <pre><code>npm install nostkey</code></pre>
-      <pre><code>import { registerPasskey, encryptNsec, decryptNsec } from 'nostkey'
+      <p>Integrate keytr into your Nostr client with a few lines:</p>
+      <pre><code>npm install keytr</code></pre>
+      <pre><code>import { registerPasskey, encryptNsec, decryptNsec } from 'keytr'
 
 // Register
 const cred = await registerPasskey({
-  rpId: 'nostkey.org',
-  rpName: 'nostkey',
+  rpId: 'keytr.org',
+  rpName: 'keytr',
   userName: npub
 })
 
@@ -133,21 +133,21 @@ const blob = await encryptNsec({ nsec, credential: cred })
 const { nsec } = await decryptNsec({
   encryptedBlob: blob,
   credentialId: cred.credentialId,
-  rpId: 'nostkey.org'
+  rpId: 'keytr.org'
 })</code></pre>
-      <p>To have your origin authorized for cross-client login, add your domain to the <a href="https://github.com/sovITxyz/nostkey.org" style="color: var(--accent);">origins list</a> via PR.</p>
+      <p>To have your origin authorized for cross-client login, add your domain to the <a href="https://github.com/sovITxyz/keytr.org" style="color: var(--accent);">origins list</a> via PR.</p>
     </div>
   </section>
 
   <section>
     <div class="links">
-      <a href="https://github.com/sovITxyz/nostkey" class="primary">Library on GitHub</a>
-      <a href="https://github.com/sovITxyz/nostkey/blob/main/nip/nip-79.md" class="secondary">NIP-79 Spec</a>
+      <a href="https://github.com/sovITxyz/keytr" class="primary">Library on GitHub</a>
+      <a href="https://github.com/sovITxyz/keytr/blob/main/nip/nip-79.md" class="secondary">NIP-79 Spec</a>
     </div>
   </section>
 
   <footer>
-    <p>nostkey is <a href="https://github.com/sovITxyz/nostkey/blob/main/LICENSE">AGPL-3.0</a> licensed. Built by <a href="https://sovit.xyz">sovIT</a>.</p>
+    <p>keytr is <a href="https://github.com/sovITxyz/keytr/blob/main/LICENSE">AGPL-3.0</a> licensed. Built by <a href="https://sovit.xyz">sovIT</a>.</p>
   </footer>
 
 </main>
