@@ -5,151 +5,374 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>keytr - Passkey Login for Nostr</title>
   <meta name="description" content="Encrypt your Nostr private key with a passkey. Log in to any client with just your fingerprint or face.">
+  <meta name="theme-color" content="#7b68ee">
+  <meta property="og:title" content="keytr - Passkey Login for Nostr">
+  <meta property="og:description" content="Encrypt your nsec with a passkey. Log in to any Nostr client with your fingerprint.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://keytr.org">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main>
 
-  <header>
-    <h1>key<span>tr</span></h1>
-    <p>Encrypt your nsec with a passkey. Log in to any Nostr client with your fingerprint.</p>
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero-glow"></div>
+    <div class="container">
+      <nav>
+        <div class="logo">key<span>tr</span></div>
+        <div class="nav-links">
+          <a href="#how-it-works">How It Works</a>
+          <a href="#security">Security</a>
+          <a href="#developers">Developers</a>
+          <a href="https://github.com/sovITxyz/keytr" class="nav-cta">GitHub</a>
+        </div>
+      </nav>
+      <div class="hero-content">
+        <div class="badge">NIP-79 Protocol</div>
+        <h1>Passkey login<br>for <span class="gradient-text">Nostr</span></h1>
+        <p class="hero-sub">Encrypt your nsec with a passkey. Log in to any Nostr client with your fingerprint. No seed phrases. No clipboard. No extensions.</p>
+        <div class="hero-actions">
+          <a href="https://github.com/sovITxyz/keytr" class="btn btn-primary">View on GitHub</a>
+          <a href="#how-it-works" class="btn btn-ghost">Learn more</a>
+        </div>
+      </div>
+    </div>
   </header>
 
-  <section>
-    <h2>The Problem</h2>
-    <p>Nostr private keys (nsec) are hard to manage. You have to copy them between devices, paste them into clients, and hope nothing leaks. One mistake and your identity is compromised forever.</p>
-    <p><strong>keytr fixes this.</strong> Your nsec gets encrypted with a passkey (fingerprint, Face ID, hardware key) and published to Nostr relays. On any new device, authenticate with your passkey to decrypt. No seed phrases. No clipboard. No extensions.</p>
-  </section>
-
-  <section>
-    <h2>How It Works</h2>
-    <ol class="flow-steps">
-      <li>Generate or import your nsec in any keytr-compatible client</li>
-      <li>Register a passkey &mdash; your device creates a credential bound to a gateway (e.g. <code>keytr.org</code>) or the client's own domain</li>
-      <li>Your nsec is encrypted using a key derived from the passkey's PRF extension</li>
-      <li>The encrypted blob is published as a kind:30079 event to your relays</li>
-      <li>On a new device, open any keytr-compatible client and tap "Login with Passkey"</li>
-      <li>Your passkey syncs via iCloud/Google/Windows &mdash; authenticate to decrypt your nsec</li>
-    </ol>
-  </section>
-
-  <section>
-    <h2>Encryption</h2>
-    <div class="crypto-detail">
-      <h3>Scheme</h3>
-      <ul>
-        <li><strong>Key Source:</strong> WebAuthn PRF extension (hmac-secret)</li>
-        <li><strong>KDF:</strong> HKDF-SHA256 with random 32-byte salt</li>
-        <li><strong>Cipher:</strong> AES-256-GCM with 12-byte random IV</li>
-        <li><strong>AAD:</strong> credential ID + version (prevents substitution)</li>
-      </ul>
+  <!-- Problem -->
+  <section class="problem">
+    <div class="container">
+      <div class="problem-grid">
+        <div class="problem-card">
+          <div class="problem-icon">&#x26A0;</div>
+          <h3>Clipboard exposure</h3>
+          <p>Copy-pasting nsec between devices leaks your identity to every app that reads the clipboard.</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-icon">&#x1F512;</div>
+          <h3>No sync</h3>
+          <p>Browser extensions don't follow you across devices. Hardware signers add complexity.</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-icon">&#x2620;</div>
+          <h3>One mistake, forever</h3>
+          <p>Leak your nsec once and your Nostr identity is compromised permanently. There's no rotation.</p>
+        </div>
+      </div>
+      <div class="solution-banner">
+        <strong>keytr fixes this.</strong> Your nsec gets encrypted with a passkey and published to Nostr relays. On any new device, authenticate with your fingerprint to decrypt. That's it.
+      </div>
     </div>
-    <p>The passkey never leaves your device. The PRF extension produces a deterministic secret that derives the encryption key. Even if the encrypted event is public, it is useless without your passkey.</p>
   </section>
 
-  <section>
-    <h2>Federated Cross-Client Login</h2>
-    <p>WebAuthn binds passkey outputs to the domain (rpId) they were created on. To enable cross-client login, keytr uses a <strong>federated gateway model</strong>.</p>
-    <p>Any domain can become a <strong>passkey gateway</strong> by hosting a <code>/.well-known/webauthn</code> file that lists authorized client origins. Multiple gateways can coexist &mdash; no single domain controls the protocol.</p>
-    <div class="crypto-detail">
-      <h3>Gateway Federation</h3>
-      <ul>
-        <li><strong>keytr.org</strong> &mdash; gateway operated by sovIT</li>
-        <li><strong>Any other domain</strong> &mdash; anyone can run their own gateway</li>
-        <li><strong>Standalone</strong> &mdash; clients can use their own domain as rpId</li>
-      </ul>
+  <!-- How It Works -->
+  <section id="how-it-works" class="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <h2>How it works</h2>
+        <p>Six steps from nsec chaos to passkey-protected login.</p>
+      </div>
+
+      <div class="flow">
+        <div class="flow-line"></div>
+        <div class="flow-step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h4>Generate or import</h4>
+            <p>Create a new nsec or bring your existing one into any keytr-compatible client.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h4>Register a passkey</h4>
+            <p>Your device creates a WebAuthn credential bound to a gateway (e.g. <code>keytr.org</code>) or the client's own domain.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h4>Encrypt with PRF</h4>
+            <p>Your nsec is encrypted using a key derived from the passkey's PRF extension &mdash; a deterministic secret that only your passkey can produce.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h4>Publish to relays</h4>
+            <p>The encrypted blob is published as a <code>kind:30079</code> parameterized replaceable event to your Nostr relays.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-number">5</div>
+          <div class="step-content">
+            <h4>Open any client</h4>
+            <p>On a new device, open any keytr-compatible client and tap <strong>"Login with Passkey"</strong>.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-number">6</div>
+          <div class="step-content">
+            <h4>Authenticate &amp; decrypt</h4>
+            <p>Your passkey syncs via iCloud / Google / Windows &mdash; authenticate with your fingerprint or face to decrypt your nsec instantly.</p>
+          </div>
+        </div>
+      </div>
     </div>
-    <p>Users register passkeys against <strong>multiple gateways</strong>, producing a separate kind:30079 event for each. Any client authorized by any of those gateways can decrypt the matching event. Lose access to one gateway? Your other events still work.</p>
-    <pre><code>// Client uses a gateway as rpId
+  </section>
+
+  <!-- Architecture Diagram -->
+  <section class="architecture">
+    <div class="container">
+      <div class="section-header">
+        <h2>Architecture</h2>
+        <p>No servers to trust. No passwords to remember. Just math and hardware.</p>
+      </div>
+      <div class="arch-diagram">
+        <div class="arch-row">
+          <div class="arch-node arch-device">
+            <div class="arch-label">Your device</div>
+            <div class="arch-detail">Passkey + biometric</div>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-node arch-prf">
+            <div class="arch-label">PRF output</div>
+            <div class="arch-detail">32-byte deterministic secret</div>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-node arch-crypto">
+            <div class="arch-label">HKDF + AES-256-GCM</div>
+            <div class="arch-detail">Encrypt nsec &rarr; 93-byte blob</div>
+          </div>
+          <div class="arch-arrow">&rarr;</div>
+          <div class="arch-node arch-relay">
+            <div class="arch-label">Nostr relays</div>
+            <div class="arch-detail">kind:30079 event</div>
+          </div>
+        </div>
+        <div class="arch-note">All cryptography happens client-side. Relays are dumb stores &mdash; they never see your nsec or encryption key.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Security -->
+  <section id="security" class="security">
+    <div class="container">
+      <div class="section-header">
+        <h2>Security</h2>
+        <p>Designed to make the right thing easy and the wrong thing impossible.</p>
+      </div>
+      <div class="crypto-grid">
+        <div class="crypto-card">
+          <h3>Encryption scheme</h3>
+          <ul>
+            <li><strong>Key source</strong> <span>WebAuthn PRF extension (hmac-secret)</span></li>
+            <li><strong>KDF</strong> <span>HKDF-SHA256 with random 32-byte salt</span></li>
+            <li><strong>Cipher</strong> <span>AES-256-GCM with 12-byte random IV</span></li>
+            <li><strong>AAD</strong> <span>Credential ID + version (prevents substitution)</span></li>
+          </ul>
+        </div>
+        <div class="crypto-card">
+          <h3>What attackers can't do</h3>
+          <ul>
+            <li><strong>Phish the key</strong> <span>PRF output is origin-bound</span></li>
+            <li><strong>Brute-force</strong> <span>Key is hardware-bound, not a password</span></li>
+            <li><strong>Swap ciphertexts</strong> <span>AAD binds blob to credential ID</span></li>
+            <li><strong>Compromise relays</strong> <span>End-to-end encrypted, relay sees nothing</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="crypto-note">The passkey never leaves your device. The PRF extension produces a deterministic secret that derives the encryption key. Even if the encrypted event is public, it is useless without your passkey.</p>
+    </div>
+  </section>
+
+  <!-- Federation -->
+  <section class="federation">
+    <div class="container">
+      <div class="section-header">
+        <h2>Federated cross-client login</h2>
+        <p>One passkey works across every Nostr client. No single domain controls the protocol.</p>
+      </div>
+
+      <div class="fed-explanation">
+        <p>WebAuthn binds passkey outputs to the domain (<code>rpId</code>) they were created on. To enable cross-client login, keytr uses a <strong>federated gateway model</strong> built on the W3C <a href="https://w3c.github.io/webauthn/#sctn-related-origins">Related Origin Requests</a> spec.</p>
+        <p>Any domain can become a passkey gateway by hosting a <code>/.well-known/webauthn</code> file listing authorized client origins. Register passkeys against <strong>multiple gateways</strong>, producing a separate <code>kind:30079</code> event for each. <code>keytr.org</code> runs on Cloudflare, <a href="https://nostkey.org">nostkey.org</a> runs on GitHub Pages &mdash; different providers, different infrastructure, zero single points of failure.</p>
+      </div>
+
+      <div class="fed-grid">
+        <div class="fed-card">
+          <div class="fed-domain">keytr.org</div>
+          <div class="fed-desc">Primary gateway on Cloudflare (sovIT)</div>
+        </div>
+        <div class="fed-card">
+          <a href="https://nostkey.org" class="fed-link">
+            <div class="fed-domain">nostkey.org</div>
+            <div class="fed-desc">Alternative gateway on GitHub Pages (sovIT)</div>
+          </a>
+        </div>
+        <div class="fed-card">
+          <div class="fed-domain">your-domain.com</div>
+          <div class="fed-desc">Run your own &mdash; anyone can be a gateway</div>
+        </div>
+      </div>
+
+      <div class="code-section">
+        <div class="code-header">
+          <span class="code-dot"></span>
+          <span class="code-dot"></span>
+          <span class="code-dot"></span>
+          <span class="code-title">Cross-client WebAuthn</span>
+        </div>
+        <pre><code><span class="c">// Client uses a gateway as rpId</span>
 navigator.credentials.create({
   publicKey: {
-    rp: { id: "keytr.org", name: "keytr" },
+    rp: { id: <span class="s">"keytr.org"</span>, name: <span class="s">"keytr"</span> },
     extensions: {
       prf: { eval: { first: salt } }
     }
   }
 })
 
-// Or uses its own domain (standalone)
+<span class="c">// Or uses its own domain (standalone)</span>
 navigator.credentials.create({
   publicKey: {
-    rp: { id: "myclient.com", name: "My Client" },
+    rp: { id: <span class="s">"myclient.com"</span>, name: <span class="s">"My Client"</span> },
     extensions: {
       prf: { eval: { first: salt } }
     }
   }
 })</code></pre>
+      </div>
+    </div>
   </section>
 
-  <section>
-    <h2>Run Your Own Gateway</h2>
-    <p>Decentralize the protocol further by running your own passkey gateway. All you need is a domain with one file:</p>
-    <pre><code># /.well-known/webauthn
-{
-  "origins": [
-    "https://your-gateway.example",
-    "https://client-a.com",
-    "https://client-b.com"
+  <!-- Run Your Own Gateway -->
+  <section class="gateway">
+    <div class="container">
+      <div class="section-header">
+        <h2>Run your own gateway</h2>
+        <p>Decentralize the protocol further. All you need is a domain and one file.</p>
+      </div>
+      <div class="code-section">
+        <div class="code-header">
+          <span class="code-dot"></span>
+          <span class="code-dot"></span>
+          <span class="code-dot"></span>
+          <span class="code-title">/.well-known/webauthn</span>
+        </div>
+        <pre><code>{
+  <span class="s">"origins"</span>: [
+    <span class="s">"https://your-gateway.example"</span>,
+    <span class="s">"https://client-a.com"</span>,
+    <span class="s">"https://client-b.com"</span>
   ]
 }</code></pre>
-    <p>Clients listed in your <code>origins</code> can register passkeys under your domain's rpId. The browser verifies authorization automatically via the <a href="https://w3c.github.io/webauthn/#sctn-related-origins" style="color: var(--accent);">Related Origin Requests</a> spec.</p>
+      </div>
+      <p class="gateway-note">Clients listed in your <code>origins</code> can register passkeys under your domain's rpId. The browser verifies authorization automatically via the <a href="https://w3c.github.io/webauthn/#sctn-related-origins">Related Origin Requests</a> spec.</p>
+    </div>
   </section>
 
-  <section>
-    <h2>The Event (NIP-79)</h2>
-    <p>Encrypted keys are stored as <strong>kind:30079</strong> parameterized replaceable events:</p>
-    <pre><code>{
-  "kind": 30079,
-  "content": "&lt;base64 encrypted nsec blob&gt;",
-  "tags": [
-    ["d", "&lt;credential-id&gt;"],
-    ["rp", "keytr.org"],
-    ["algo", "aes-256-gcm"],
-    ["kdf", "hkdf-sha256"],
-    ["v", "1"]
+  <!-- NIP-79 Event -->
+  <section class="event-spec">
+    <div class="container">
+      <div class="section-header">
+        <h2>The event &mdash; NIP-79</h2>
+        <p>Encrypted keys are stored as <code>kind:30079</code> parameterized replaceable events.</p>
+      </div>
+      <div class="code-section">
+        <div class="code-header">
+          <span class="code-dot"></span>
+          <span class="code-dot"></span>
+          <span class="code-dot"></span>
+          <span class="code-title">kind:30079</span>
+        </div>
+        <pre><code>{
+  <span class="s">"kind"</span>: <span class="n">30079</span>,
+  <span class="s">"content"</span>: <span class="s">"&lt;base64 encrypted nsec blob&gt;"</span>,
+  <span class="s">"tags"</span>: [
+    [<span class="s">"d"</span>, <span class="s">"&lt;credential-id&gt;"</span>],
+    [<span class="s">"rp"</span>, <span class="s">"keytr.org"</span>],
+    [<span class="s">"algo"</span>, <span class="s">"aes-256-gcm"</span>],
+    [<span class="s">"kdf"</span>, <span class="s">"hkdf-sha256"</span>],
+    [<span class="s">"v"</span>, <span class="s">"1"</span>]
   ]
 }</code></pre>
-    <p>Multiple passkeys can be registered &mdash; each produces a separate event with a different <code>d</code> tag. Lose one passkey, your others still work.</p>
+      </div>
+      <p class="event-note">Multiple passkeys can be registered &mdash; each produces a separate event with a different <code>d</code> tag. Lose one passkey, your others still work.</p>
+    </div>
   </section>
 
-  <section>
-    <h2>For Client Developers</h2>
-    <div class="client-section">
-      <p>Integrate keytr into your Nostr client with a few lines:</p>
-      <pre><code>npm install keytr</code></pre>
-      <pre><code>import { registerPasskey, encryptNsec, decryptNsec } from 'keytr'
+  <!-- Developers -->
+  <section id="developers" class="developers">
+    <div class="container">
+      <div class="section-header">
+        <h2>For client developers</h2>
+        <p>Integrate keytr into your Nostr client in minutes.</p>
+      </div>
+      <div class="dev-content">
+        <div class="code-section">
+          <div class="code-header">
+            <span class="code-dot"></span>
+            <span class="code-dot"></span>
+            <span class="code-dot"></span>
+            <span class="code-title">Install</span>
+          </div>
+          <pre><code>npm install keytr</code></pre>
+        </div>
+        <div class="code-section">
+          <div class="code-header">
+            <span class="code-dot"></span>
+            <span class="code-dot"></span>
+            <span class="code-dot"></span>
+            <span class="code-title">Usage</span>
+          </div>
+          <pre><code><span class="k">import</span> { registerPasskey, encryptNsec, decryptNsec } <span class="k">from</span> <span class="s">'keytr'</span>
 
-// Register
-const cred = await registerPasskey({
-  rpId: 'keytr.org',
-  rpName: 'keytr',
+<span class="c">// Register a passkey</span>
+<span class="k">const</span> cred = <span class="k">await</span> registerPasskey({
+  rpId: <span class="s">'keytr.org'</span>,
+  rpName: <span class="s">'keytr'</span>,
   userName: npub
 })
 
-// Encrypt &amp; publish
-const blob = await encryptNsec({ nsec, credential: cred })
+<span class="c">// Encrypt &amp; publish</span>
+<span class="k">const</span> blob = <span class="k">await</span> encryptNsec({ nsec, credential: cred })
 
-// Decrypt on new device
-const { nsec } = await decryptNsec({
+<span class="c">// Decrypt on new device</span>
+<span class="k">const</span> { nsec } = <span class="k">await</span> decryptNsec({
   encryptedBlob: blob,
   credentialId: cred.credentialId,
-  rpId: 'keytr.org'
+  rpId: <span class="s">'keytr.org'</span>
 })</code></pre>
-      <p>To have your origin authorized for cross-client login, add your domain to the <a href="https://github.com/sovITxyz/keytr.org" style="color: var(--accent);">origins list</a> via PR.</p>
+        </div>
+        <p class="dev-note">To have your origin authorized for cross-client login, add your domain to the <a href="https://github.com/sovITxyz/keytr.org">origins list</a> via PR.</p>
+      </div>
     </div>
   </section>
 
-  <section>
-    <div class="links">
-      <a href="https://github.com/sovITxyz/keytr" class="primary">Library on GitHub</a>
-      <a href="https://github.com/sovITxyz/keytr/blob/main/nip/nip-79.md" class="secondary">NIP-79 Spec</a>
+  <!-- CTA -->
+  <section class="cta">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Start building with keytr</h2>
+        <p>Open protocol. Open source. Open to everyone.</p>
+        <div class="cta-actions">
+          <a href="https://github.com/sovITxyz/keytr" class="btn btn-primary btn-lg">Library on GitHub</a>
+          <a href="https://github.com/sovITxyz/keytr/blob/main/nip/nip-79.md" class="btn btn-ghost btn-lg">Read NIP-79</a>
+        </div>
+      </div>
     </div>
   </section>
 
+  <!-- Footer -->
   <footer>
-    <p>keytr is <a href="https://github.com/sovITxyz/keytr/blob/main/LICENSE">AGPL-3.0</a> licensed. Built by <a href="https://sovit.xyz">sovIT</a>.</p>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">key<span>tr</span></div>
+        <p><a href="https://github.com/sovITxyz/keytr/blob/main/LICENSE">AGPL-3.0</a> &middot; Built by <a href="https://sovit.xyz">sovIT</a></p>
+      </div>
+    </div>
   </footer>
 
-</main>
 </body>
 </html>
