@@ -28,7 +28,7 @@
         </div>
       </nav>
       <div class="hero-content">
-        <div class="badge">NIP-79 Protocol</div>
+        <div class="badge">NIP-K1 Protocol</div>
         <h1>Passkey login<br>for <span class="gradient-text">Nostr</span></h1>
         <p class="hero-sub">Encrypt your nsec with a passkey. Log in to any Nostr client with your fingerprint. No seed phrases. No clipboard. No extensions.</p>
         <div class="hero-actions">
@@ -60,7 +60,7 @@
         </div>
       </div>
       <div class="solution-banner">
-        <strong>keytr fixes this.</strong> Your nsec gets encrypted with a passkey and published to Nostr relays. On any new device, authenticate with your fingerprint to decrypt. That's it.
+        <strong>keytr fixes this.</strong> Your nsec gets encrypted with a passkey and published to Nostr relays. On any new device, authenticate with your fingerprint to decrypt. That's it. Inspired by the passkey vault approach pioneered by <a href="https://bittasker.com">BitTasker</a>.
       </div>
     </div>
   </section>
@@ -92,8 +92,8 @@
         <div class="flow-step">
           <div class="step-number">3</div>
           <div class="step-content">
-            <h4>Encrypt with PRF</h4>
-            <p>Your nsec is encrypted using a key derived from the passkey's PRF extension &mdash; a deterministic secret that only your passkey can produce.</p>
+            <h4>Encrypt &amp; vault the key</h4>
+            <p>A random encryption key is generated, used to encrypt your nsec, then packed alongside your npub into the passkey's <code>user.id</code> field &mdash; creating a split-knowledge vault that only your biometric can unlock.</p>
           </div>
         </div>
         <div class="flow-step">
@@ -136,13 +136,13 @@
           </div>
           <div class="arch-arrow">&rarr;</div>
           <div class="arch-node arch-prf">
-            <div class="arch-label">PRF output</div>
-            <div class="arch-detail">32-byte deterministic secret</div>
+            <div class="arch-label">Export key</div>
+            <div class="arch-detail">Random 32-byte key in user.id</div>
           </div>
           <div class="arch-arrow">&rarr;</div>
           <div class="arch-node arch-crypto">
-            <div class="arch-label">HKDF + AES-256-GCM</div>
-            <div class="arch-detail">Encrypt nsec &rarr; 93-byte blob</div>
+            <div class="arch-label">AES-256-GCM</div>
+            <div class="arch-detail">Encrypt nsec &rarr; 61-byte blob</div>
           </div>
           <div class="arch-arrow">&rarr;</div>
           <div class="arch-node arch-relay">
@@ -166,23 +166,23 @@
         <div class="crypto-card">
           <h3>Encryption scheme</h3>
           <ul>
-            <li><strong>Key source</strong> <span>WebAuthn PRF extension (hmac-secret)</span></li>
-            <li><strong>KDF</strong> <span>HKDF-SHA256 with random 32-byte salt</span></li>
+            <li><strong>Key source</strong> <span>Random 256-bit export key in WebAuthn user.id</span></li>
+            <li><strong>Split knowledge</strong> <span>Relay has ciphertext, passkey has key</span></li>
             <li><strong>Cipher</strong> <span>AES-256-GCM with 12-byte random IV</span></li>
-            <li><strong>AAD</strong> <span>Credential ID + version (prevents substitution)</span></li>
+            <li><strong>AAD</strong> <span>Credential ID (prevents substitution)</span></li>
           </ul>
         </div>
         <div class="crypto-card">
           <h3>What attackers can't do</h3>
           <ul>
-            <li><strong>Phish the key</strong> <span>PRF output is origin-bound</span></li>
-            <li><strong>Brute-force</strong> <span>Key is hardware-bound, not a password</span></li>
+            <li><strong>Phish the key</strong> <span>Passkey is origin-bound to the rpId</span></li>
+            <li><strong>Brute-force</strong> <span>Random 256-bit key, not a password</span></li>
             <li><strong>Swap ciphertexts</strong> <span>AAD binds blob to credential ID</span></li>
             <li><strong>Compromise relays</strong> <span>End-to-end encrypted, relay sees nothing</span></li>
           </ul>
         </div>
       </div>
-      <p class="crypto-note">The passkey never leaves your device. The PRF extension produces a deterministic secret that derives the encryption key. Even if the encrypted event is public, it is useless without your passkey.</p>
+      <p class="crypto-note">The encryption key is embedded inside your passkey's <code>user.id</code> field &mdash; it only leaves the authenticator after biometric/PIN verification. Even if the encrypted event is public on relays, it is useless without your passkey.</p>
     </div>
   </section>
 
@@ -223,25 +223,25 @@
           <span class="code-dot"></span>
           <span class="code-title">Cross-client WebAuthn</span>
         </div>
-        <pre><code><span class="c">// Client uses a gateway as rpId</span>
+        <pre><code><span class="c">// Pack npub + export key into user.id (64 bytes)</span>
+<span class="k">const</span> userHandle = <span class="k">new</span> Uint8Array(64)
+userHandle.set(npubBytes, 0)        <span class="c">// bytes 0–31: public key</span>
+userHandle.set(exportKey, 32)       <span class="c">// bytes 32–63: encryption key</span>
+
+<span class="c">// Register passkey with gateway rpId</span>
 navigator.credentials.create({
   publicKey: {
     rp: { id: <span class="s">"keytr.org"</span>, name: <span class="s">"keytr"</span> },
-    extensions: {
-      prf: { eval: { first: salt } }
+    user: { id: userHandle, name: npub, displayName: npub },
+    authenticatorSelection: {
+      residentKey: <span class="s">"required"</span>,
+      userVerification: <span class="s">"required"</span>
     }
   }
 })
 
-<span class="c">// Or uses its own domain (standalone)</span>
-navigator.credentials.create({
-  publicKey: {
-    rp: { id: <span class="s">"myclient.com"</span>, name: <span class="s">"My Client"</span> },
-    extensions: {
-      prf: { eval: { first: salt } }
-    }
-  }
-})</code></pre>
+<span class="c">// On login, authenticator returns userHandle</span>
+<span class="c">// → extract npub + export key → decrypt nsec</span></code></pre>
       </div>
     </div>
   </section>
@@ -272,11 +272,11 @@ navigator.credentials.create({
     </div>
   </section>
 
-  <!-- NIP-79 Event -->
+  <!-- NIP-K1 Event -->
   <section class="event-spec">
     <div class="container">
       <div class="section-header">
-        <h2>The event &mdash; NIP-79</h2>
+        <h2>The event &mdash; NIP-K1</h2>
         <p>Encrypted keys are stored as <code>kind:30079</code> parameterized replaceable events.</p>
       </div>
       <div class="code-section">
@@ -293,7 +293,7 @@ navigator.credentials.create({
     [<span class="s">"d"</span>, <span class="s">"&lt;credential-id&gt;"</span>],
     [<span class="s">"rp"</span>, <span class="s">"keytr.org"</span>],
     [<span class="s">"algo"</span>, <span class="s">"aes-256-gcm"</span>],
-    [<span class="s">"kdf"</span>, <span class="s">"hkdf-sha256"</span>],
+    [<span class="s">"scheme"</span>, <span class="s">"passkey-vault"</span>],
     [<span class="s">"v"</span>, <span class="s">"1"</span>]
   ]
 }</code></pre>
@@ -326,24 +326,17 @@ navigator.credentials.create({
             <span class="code-dot"></span>
             <span class="code-title">Usage</span>
           </div>
-          <pre><code><span class="k">import</span> { registerPasskey, encryptNsec, decryptNsec } <span class="k">from</span> <span class="s">'keytr'</span>
+          <pre><code><span class="k">import</span> { setupKeytr, loginWithKeytr, fetchKeytrEvents } <span class="k">from</span> <span class="s">'keytr'</span>
 
-<span class="c">// Register a passkey</span>
-<span class="k">const</span> cred = <span class="k">await</span> registerPasskey({
-  rpId: <span class="s">'keytr.org'</span>,
-  rpName: <span class="s">'keytr'</span>,
-  userName: npub
-})
+<span class="c">// Setup: register passkey + encrypt nsec</span>
+<span class="k">const</span> { credential, encryptedBlob, eventTemplate, nsecBytes, npub }
+  = <span class="k">await</span> setupKeytr({ userName: <span class="s">'alice'</span>, rpId: <span class="s">'keytr.org'</span> })
 
-<span class="c">// Encrypt &amp; publish</span>
-<span class="k">const</span> blob = <span class="k">await</span> encryptNsec({ nsec, credential: cred })
+<span class="c">// Sign &amp; publish the kind:30079 event to relays</span>
 
-<span class="c">// Decrypt on new device</span>
-<span class="k">const</span> { nsec } = <span class="k">await</span> decryptNsec({
-  encryptedBlob: blob,
-  credentialId: cred.credentialId,
-  rpId: <span class="s">'keytr.org'</span>
-})</code></pre>
+<span class="c">// Login on new device: one biometric tap</span>
+<span class="k">const</span> events = <span class="k">await</span> fetchKeytrEvents(pubkey, relays)
+<span class="k">const</span> { nsecBytes, npub } = <span class="k">await</span> loginWithKeytr(events[0])</code></pre>
         </div>
         <p class="dev-note">To have your origin authorized for cross-client login, add your domain to the <a href="https://github.com/sovITxyz/keytr.org">origins list</a> via PR.</p>
       </div>
@@ -359,7 +352,7 @@ navigator.credentials.create({
         <div class="cta-actions">
           <a href="https://github.com/sovITxyz/keytr" class="btn btn-primary btn-lg">Library on GitHub</a>
           <a href="https://github.com/sovITxyz/keytr.org" class="btn btn-ghost btn-lg">Site Source</a>
-          <a href="https://github.com/sovITxyz/keytr/blob/main/nip/nip-79.md" class="btn btn-ghost btn-lg">Read NIP-79</a>
+          <a href="https://github.com/sovITxyz/keytr/blob/main/nip/nip-k1.md" class="btn btn-ghost btn-lg">Read NIP-K1</a>
         </div>
       </div>
     </div>
