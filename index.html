@@ -196,26 +196,24 @@
 
       <div class="fed-explanation">
         <p>WebAuthn binds passkey outputs to the domain (<code>rpId</code>) they were created on. To enable cross-client login, keytr uses a <strong>federated gateway model</strong> built on the W3C <a href="https://w3c.github.io/webauthn/#sctn-related-origins">Related Origin Requests</a> spec.</p>
-        <p>Any domain can become a passkey gateway by hosting a <code>/.well-known/webauthn</code> file listing authorized client origins. Users register passkeys against <strong>multiple gateways</strong>, producing a separate <code>kind:30079</code> event for each. Lose access to one gateway? Your other events still work.</p>
+        <p>Any domain can become a passkey gateway by hosting a <code>/.well-known/webauthn</code> file listing authorized client origins. Register passkeys against <strong>multiple gateways</strong>, producing a separate <code>kind:30079</code> event for each. <code>keytr.org</code> runs on Cloudflare, <a href="https://nostkey.org">nostkey.org</a> runs on GitHub Pages &mdash; different providers, different infrastructure, zero single points of failure.</p>
       </div>
 
       <div class="fed-grid">
         <div class="fed-card">
           <div class="fed-domain">keytr.org</div>
-          <div class="fed-desc">Primary gateway &mdash; Cloudflare</div>
+          <div class="fed-desc">Primary gateway on Cloudflare (sovIT)</div>
         </div>
         <div class="fed-card">
-          <div class="fed-domain"><a href="https://nostkey.org">nostkey.org</a></div>
-          <div class="fed-desc">Alternative gateway &mdash; GitHub Pages</div>
+          <a href="https://nostkey.org" class="fed-link">
+            <div class="fed-domain">nostkey.org</div>
+            <div class="fed-desc">Alternative gateway on GitHub Pages (sovIT)</div>
+          </a>
         </div>
         <div class="fed-card">
           <div class="fed-domain">your-domain.com</div>
-          <div class="fed-desc">Run your own &mdash; anyone can</div>
+          <div class="fed-desc">Run your own &mdash; anyone can be a gateway</div>
         </div>
-      </div>
-
-      <div class="fed-note">
-        <strong>Decentralize your keys:</strong> Register passkeys on both <code>keytr.org</code> (Cloudflare) and <a href="https://nostkey.org">nostkey.org</a> (GitHub Pages) for redundancy. Each produces a separate <code>kind:30079</code> event. If one provider goes down, your other gateway still works.
       </div>
 
       <div class="code-section">

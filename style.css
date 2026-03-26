@@ -505,6 +505,15 @@ nav {
   color: var(--muted);
 }
 
+.fed-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.fed-link:hover { color: inherit; }
+.fed-link .fed-domain { transition: color 0.15s; }
+.fed-link:hover .fed-domain { color: var(--text); }
+
 .fed-note {
   background: var(--surface);
   border: 1px solid var(--accent);
