@@ -12,6 +12,7 @@
   --accent-dim: #6554d4;
   --accent-glow: rgba(123, 104, 238, 0.15);
   --accent-glow-strong: rgba(123, 104, 238, 0.3);
+  --github: #f59e0b;
   --green: #34d399;
   --red: #f87171;
   --max-w: 780px;
@@ -448,6 +449,113 @@ nav {
   margin: 0 auto;
 }
 
+/* ── Decentralized Gateways ──────────────────────── */
+.decentralized {
+  padding: 5rem 0;
+  background: var(--bg-alt);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.gateway-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.gw-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: border-color 0.2s;
+}
+.gw-card:hover { border-color: var(--border-accent); }
+.gw-highlight {
+  border-color: var(--accent);
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+
+.gw-link {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+}
+
+.gw-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+.gw-cloudflare {
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+.gw-github {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--github);
+}
+
+.gw-domain {
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.gw-desc {
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.gw-details {
+  list-style: none;
+}
+.gw-details li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.83rem;
+}
+.gw-details li:last-child { border: none; }
+.gw-details li strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.gw-details li span {
+  color: var(--muted);
+}
+
+.decentralized-note {
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+.decentralized-note strong { color: var(--text); }
+.decentralized-note em { color: var(--text); font-style: normal; }
+.decentralized-note code {
+  font-family: var(--mono);
+  background: var(--bg);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: var(--accent);
+}
+
 /* ── Federation ──────────────────────────────────── */
 .federation {
   padding: 5rem 0;
@@ -717,6 +825,7 @@ footer {
   .hero-content { padding-top: 3rem; }
 
   .problem-grid,
+  .gateway-comparison,
   .crypto-grid,
   .fed-grid {
     grid-template-columns: 1fr;

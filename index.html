@@ -186,6 +186,45 @@
     </div>
   </section>
 
+  <!-- Decentralized Gateways -->
+  <section id="decentralized" class="decentralized">
+    <div class="container">
+      <div class="section-header">
+        <h2>Two gateways, zero single points of failure</h2>
+        <p>Your passkey-encrypted keys live on Nostr relays. The gateways just provide the WebAuthn rpId &mdash; and now there are two.</p>
+      </div>
+
+      <div class="gateway-comparison">
+        <div class="gw-card gw-highlight">
+          <div class="gw-badge gw-cloudflare">Cloudflare</div>
+          <div class="gw-domain">keytr.org</div>
+          <div class="gw-desc">Primary gateway operated by sovIT. Hosted on Cloudflare for global edge performance.</div>
+          <ul class="gw-details">
+            <li><strong>Hosting</strong> <span>Cloudflare Pages</span></li>
+            <li><strong>Operator</strong> <span>sovIT</span></li>
+            <li><strong>Status</strong> <span>Active</span></li>
+          </ul>
+        </div>
+        <div class="gw-card">
+          <a href="https://nostkey.org" class="gw-link">
+            <div class="gw-badge gw-github">GitHub Pages</div>
+            <div class="gw-domain">nostkey.org</div>
+            <div class="gw-desc">Alternative gateway hosted on GitHub Pages. Same protocol, different infrastructure. True decentralization.</div>
+            <ul class="gw-details">
+              <li><strong>Hosting</strong> <span>GitHub Pages</span></li>
+              <li><strong>Operator</strong> <span>sovIT</span></li>
+              <li><strong>Status</strong> <span>Active</span></li>
+            </ul>
+          </a>
+        </div>
+      </div>
+
+      <div class="decentralized-note">
+        <strong>Why does this matter?</strong> WebAuthn passkeys are bound to the domain (rpId) they were created on. If keytr.org goes down or Cloudflare has an outage, passkeys registered against it can't authenticate. By registering passkeys against <em>both</em> gateways, you maintain access even if one provider fails. Each gateway produces a separate <code>kind:30079</code> event on your relays.
+      </div>
+    </div>
+  </section>
+
   <!-- Federation -->
   <section class="federation">
     <div class="container">
