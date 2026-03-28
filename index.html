@@ -275,7 +275,7 @@ navigator.credentials.create({
       userVerification: <span class="s">"required"</span>
     },
     extensions: {
-      prf: { eval: { first: <span class="s">"keytr-v1"</span> } }
+      prf: { eval: { first: new TextEncoder().encode(<span class="s">"keytr-v1"</span>) } }
     }
   }
 })
