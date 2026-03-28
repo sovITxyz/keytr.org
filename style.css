@@ -111,6 +111,21 @@ nav {
 }
 .logo span { color: var(--accent); }
 
+.inspired-by {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 450;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  opacity: 0.7;
+  transition: opacity 0.2s, border-color 0.2s;
+}
+.inspired-by:hover {
+  opacity: 1;
+  border-color: var(--accent);
+}
+
 .nav-links {
   display: flex;
   align-items: center;
@@ -497,7 +512,7 @@ nav {
   background: var(--accent-glow);
   color: var(--accent);
 }
-.gw-github {
+.gw-hostinger {
   background: rgba(245, 158, 11, 0.15);
   color: var(--github);
 }
@@ -820,6 +835,7 @@ footer {
 
 /* ── Responsive ──────────────────────────────────── */
 @media (max-width: 768px) {
+  .inspired-by { display: none; }
   .nav-links a:not(.nav-cta) { display: none; }
 
   .hero-content { padding-top: 3rem; }
