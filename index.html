@@ -101,7 +101,7 @@
           <div class="step-number">4</div>
           <div class="step-content">
             <h4>Publish to relays</h4>
-            <p>The encrypted blob is published as a <code>kind:30079</code> parameterized replaceable event to your Nostr relays.</p>
+            <p>The encrypted blob is published as a <code>kind:31777</code> parameterized replaceable event to your Nostr relays.</p>
           </div>
         </div>
         <div class="flow-step">
@@ -148,7 +148,7 @@
           <div class="arch-arrow">&rarr;</div>
           <div class="arch-node arch-relay">
             <div class="arch-label">Nostr relays</div>
-            <div class="arch-detail">kind:30079 event</div>
+            <div class="arch-detail">kind:31777 event</div>
           </div>
         </div>
         <div class="arch-note">All cryptography happens client-side. Relays are dumb stores &mdash; they never see your nsec or encryption key.</div>
@@ -221,7 +221,7 @@
       </div>
 
       <div class="decentralized-note">
-        <strong>Why does this matter?</strong> WebAuthn passkeys are bound to the domain (rpId) they were created on. If keytr.org goes down or Cloudflare has an outage, passkeys registered against it can't authenticate. By registering passkeys against <em>both</em> gateways, you maintain access even if one provider fails. Each gateway produces a separate <code>kind:30079</code> event on your relays.
+        <strong>Why does this matter?</strong> WebAuthn passkeys are bound to the domain (rpId) they were created on. If keytr.org goes down or Cloudflare has an outage, passkeys registered against it can't authenticate. By registering passkeys against <em>both</em> gateways, you maintain access even if one provider fails. Each gateway produces a separate <code>kind:31777</code> event on your relays.
       </div>
     </div>
   </section>
@@ -236,7 +236,7 @@
 
       <div class="fed-explanation">
         <p>WebAuthn binds passkey outputs to the domain (<code>rpId</code>) they were created on. To enable cross-client login, keytr uses a <strong>federated gateway model</strong> built on the W3C <a href="https://w3c.github.io/webauthn/#sctn-related-origins">Related Origin Requests</a> spec.</p>
-        <p>Any domain can become a passkey gateway by hosting a <code>/.well-known/webauthn</code> file listing authorized client origins. Register passkeys against <strong>multiple gateways</strong>, producing a separate <code>kind:30079</code> event for each. <code>keytr.org</code> runs on Cloudflare, <a href="https://nostkey.org">nostkey.org</a> runs on Hostinger &mdash; different providers, different infrastructure, zero single points of failure.</p>
+        <p>Any domain can become a passkey gateway by hosting a <code>/.well-known/webauthn</code> file listing authorized client origins. Register passkeys against <strong>multiple gateways</strong>, producing a separate <code>kind:31777</code> event for each. <code>keytr.org</code> runs on Cloudflare, <a href="https://nostkey.org">nostkey.org</a> runs on Hostinger &mdash; different providers, different infrastructure, zero single points of failure.</p>
       </div>
 
       <div class="fed-grid">
@@ -319,17 +319,17 @@ navigator.credentials.create({
     <div class="container">
       <div class="section-header">
         <h2>The event &mdash; NIP-K1</h2>
-        <p>Encrypted keys are stored as <code>kind:30079</code> parameterized replaceable events.</p>
+        <p>Encrypted keys are stored as <code>kind:31777</code> parameterized replaceable events.</p>
       </div>
       <div class="code-section">
         <div class="code-header">
           <span class="code-dot"></span>
           <span class="code-dot"></span>
           <span class="code-dot"></span>
-          <span class="code-title">kind:30079</span>
+          <span class="code-title">kind:31777</span>
         </div>
         <pre><code>{
-  <span class="s">"kind"</span>: <span class="n">30079</span>,
+  <span class="s">"kind"</span>: <span class="n">31777</span>,
   <span class="s">"content"</span>: <span class="s">"&lt;base64 encrypted 93-byte blob&gt;"</span>,
   <span class="s">"tags"</span>: [
     [<span class="s">"d"</span>, <span class="s">"&lt;credential-id-base64url&gt;"</span>],
@@ -376,7 +376,7 @@ navigator.credentials.create({
 <span class="k">const</span> { credential, encryptedBlob, eventTemplate, nsecBytes, npub }
   = <span class="k">await</span> setupKeytr({ userName: <span class="s">'alice'</span>, userDisplayName: <span class="s">'Alice'</span>, rpId: <span class="s">'keytr.org'</span> })
 
-<span class="c">// Sign &amp; publish the kind:30079 event to relays</span>
+<span class="c">// Sign &amp; publish the kind:31777 event to relays</span>
 
 <span class="c">// Login on new device: one biometric tap</span>
 <span class="k">const</span> events = <span class="k">await</span> fetchKeytrEvents(pubkey, relays)
