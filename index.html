@@ -373,7 +373,7 @@ navigator.credentials.create({
 
 <span class="c">// Setup: register passkey + encrypt nsec</span>
 <span class="k">const</span> { credential, encryptedBlob, eventTemplate, nsecBytes, npub }
-  = <span class="k">await</span> setupKeytr({ userName: <span class="s">'alice'</span>, rpId: <span class="s">'keytr.org'</span> })
+  = <span class="k">await</span> setupKeytr({ userName: <span class="s">'alice'</span>, userDisplayName: <span class="s">'Alice'</span>, rpId: <span class="s">'keytr.org'</span> })
 
 <span class="c">// Sign &amp; publish the kind:30079 event to relays</span>
 
