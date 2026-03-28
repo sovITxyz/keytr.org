@@ -18,7 +18,7 @@ To add your Nostr client as an authorized origin, open a PR adding your domain t
 ## Related
 
 - [keytr](https://github.com/sovITxyz/keytr) — the library (`@sovit.xyz/keytr` on npm)
-- [nostkey.org](https://github.com/sovITxyz/nostkey.org) — alternative gateway on GitHub Pages
+- [nostkey.org](https://github.com/sovITxyz/nostkey.org) — alternative gateway on Hostinger
 - [NIP-K1](https://github.com/sovITxyz/keytr/blob/main/nip/nip-k1.md) — the protocol spec
 
 ## License
