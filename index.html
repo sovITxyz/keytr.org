@@ -31,7 +31,7 @@
       <div class="hero-content">
         <div class="badge">NIP-K1 Protocol</div>
         <h1>Passkey login<br>for <span class="gradient-text">Nostr</span></h1>
-        <p class="hero-sub">Encrypt your nsec with a passkey. Log in to any Nostr client with your fingerprint. No seed phrases. No clipboard. No extensions.</p>
+        <p class="hero-sub">Encrypt your nsec with a passkey. Log in to any Nostr client with your fingerprint. No seed phrases. No clipboard. No extensions. Works with password managers too.</p>
         <div class="hero-actions">
           <a href="https://github.com/sovITxyz/keytr.org" class="btn btn-primary">View on GitHub</a>
           <a href="#how-it-works" class="btn btn-ghost">Learn more</a>
@@ -93,8 +93,8 @@
         <div class="flow-step">
           <div class="step-number">3</div>
           <div class="step-content">
-            <h4>Encrypt with PRF</h4>
-            <p>The passkey's PRF extension produces a deterministic secret, which is run through HKDF-SHA256 to derive an AES-256 encryption key. Your nsec is encrypted and your public key is stored in the passkey's <code>user.id</code> field for discoverable login.</p>
+            <h4>Encrypt</h4>
+            <p>keytr tries the passkey's PRF extension first. If the authenticator doesn't support PRF (e.g. 1Password, Bitwarden), it falls back to <strong>Key-in-Handle (KiH)</strong> mode, embedding a random encryption key in the passkey itself. Either way, the key goes through HKDF-SHA256 to derive an AES-256 encryption key.</p>
           </div>
         </div>
         <div class="flow-step">
@@ -137,8 +137,8 @@
           </div>
           <div class="arch-arrow">&rarr;</div>
           <div class="arch-node arch-prf">
-            <div class="arch-label">PRF &rarr; HKDF</div>
-            <div class="arch-detail">Deterministic key derivation</div>
+            <div class="arch-label">PRF or KiH &rarr; HKDF</div>
+            <div class="arch-detail">Key derivation (auto-detected)</div>
           </div>
           <div class="arch-arrow">&rarr;</div>
           <div class="arch-node arch-crypto">
@@ -167,10 +167,10 @@
         <div class="crypto-card">
           <h3>Encryption scheme</h3>
           <ul>
-            <li><strong>Key source</strong> <span>PRF extension &rarr; HKDF-SHA256 with random salt</span></li>
-            <li><strong>user.id</strong> <span>32-byte Nostr public key (enables discoverable login)</span></li>
+            <li><strong>Key source</strong> <span>PRF extension or KiH random key &rarr; HKDF-SHA256</span></li>
+            <li><strong>Two modes</strong> <span>PRF (hardware-bound) or KiH (password manager compatible)</span></li>
             <li><strong>Cipher</strong> <span>AES-256-GCM with 12-byte random IV</span></li>
-            <li><strong>AAD</strong> <span>Credential ID + version byte (prevents substitution &amp; downgrade)</span></li>
+            <li><strong>AAD</strong> <span>Credential ID + mode-specific version byte (prevents substitution, downgrade &amp; cross-mode attacks)</span></li>
           </ul>
         </div>
         <div class="crypto-card">
@@ -178,12 +178,12 @@
           <ul>
             <li><strong>Phish the key</strong> <span>Passkey is origin-bound to the rpId</span></li>
             <li><strong>Brute-force</strong> <span>Random 256-bit key, not a password</span></li>
-            <li><strong>Swap ciphertexts</strong> <span>AAD binds blob to credential ID</span></li>
+            <li><strong>Swap ciphertexts</strong> <span>AAD binds blob to credential ID + mode</span></li>
             <li><strong>Compromise relays</strong> <span>End-to-end encrypted, relay sees nothing</span></li>
           </ul>
         </div>
       </div>
-      <p class="crypto-note">The encryption key is derived from the passkey's PRF output &mdash; a hardware-bound secret that never leaves the authenticator. HKDF-SHA256 with a random salt turns it into a unique AES key for each encryption. Even if the encrypted event is public on relays, it is useless without your passkey.</p>
+      <p class="crypto-note">In PRF mode, the encryption key is hardware-bound and never leaves the authenticator. In KiH mode, a random 256-bit key is stored in the passkey's user.id field, protected by biometric/PIN. Either way, HKDF-SHA256 with a random salt produces a unique AES key per encryption. Even if the encrypted event is public on relays, it is useless without your passkey.</p>
     </div>
   </section>
 
@@ -263,27 +263,21 @@
           <span class="code-dot"></span>
           <span class="code-title">Cross-client WebAuthn</span>
         </div>
-        <pre><code><span class="c">// Store 32-byte pubkey as user.id for discoverable login</span>
-<span class="k">const</span> pubkeyBytes = hexToBytes(pubkeyHex)  <span class="c">// 32 bytes</span>
+        <pre><code><span class="k">import</span> { setup, discover, publishKeytrEvent } <span class="k">from</span> <span class="s">'@sovit.xyz/keytr'</span>
 
-<span class="c">// Register passkey with PRF extension + gateway rpId</span>
-navigator.credentials.create({
-  publicKey: {
-    rp: { id: <span class="s">"keytr.org"</span>, name: <span class="s">"keytr"</span> },
-    user: { id: pubkeyBytes, name: npub, displayName: npub },
-    authenticatorSelection: {
-      residentKey: <span class="s">"required"</span>,
-      userVerification: <span class="s">"required"</span>
-    },
-    extensions: {
-      prf: { eval: { first: new TextEncoder().encode(<span class="s">"keytr-v1"</span>) } }
-    }
-  }
+<span class="c">// Setup: tries PRF, falls back to KiH for password managers</span>
+<span class="k">const</span> { eventTemplate, nsecBytes, mode } = <span class="k">await</span> setup({
+  userName: <span class="s">'alice'</span>, userDisplayName: <span class="s">'Alice'</span>,
+  rpId: <span class="s">"keytr.org"</span>
 })
+<span class="c">// mode: 'prf' (hardware-bound) or 'kih' (1Password, Bitwarden, etc.)</span>
 
-<span class="c">// PRF output → HKDF-SHA256 → AES key → encrypt nsec</span>
-<span class="c">// On login, authenticator returns pubkey via userHandle</span>
-<span class="c">// + PRF output for key derivation → decrypt nsec</span></code></pre>
+<span class="c">// Sign &amp; publish</span>
+<span class="k">const</span> signed = finalizeEvent(eventTemplate, nsecBytes)
+<span class="k">await</span> publishKeytrEvent(signed, relays)
+
+<span class="c">// Discoverable login — auto-detects mode, 1 biometric prompt</span>
+<span class="k">const</span> { nsecBytes, pubkey } = <span class="k">await</span> discover(relays)</code></pre>
       </div>
     </div>
   </section>
@@ -342,7 +336,7 @@ navigator.credentials.create({
   ]
 }</code></pre>
       </div>
-      <p class="event-note">Multiple passkeys can be registered &mdash; each produces a separate event with a different <code>d</code> tag. <code>transports</code> and <code>client</code> tags are optional. Lose one passkey, your others still work.</p>
+      <p class="event-note">Multiple passkeys can be registered &mdash; each produces a separate event with a different <code>d</code> tag. The <code>v</code> tag indicates the mode: <code>1</code> for PRF, <code>3</code> for KiH. <code>transports</code> and <code>client</code> tags are optional. Lose one passkey, your others still work.</p>
     </div>
   </section>
 
@@ -370,17 +364,16 @@ navigator.credentials.create({
             <span class="code-dot"></span>
             <span class="code-title">Usage</span>
           </div>
-          <pre><code><span class="k">import</span> { setupKeytr, addBackupGateway, loginWithKeytr, fetchKeytrEvents } <span class="k">from</span> <span class="s">'@sovit.xyz/keytr'</span>
+          <pre><code><span class="k">import</span> { setup, discover, publishKeytrEvent } <span class="k">from</span> <span class="s">'@sovit.xyz/keytr'</span>
 
-<span class="c">// Setup: register passkey + encrypt nsec</span>
-<span class="k">const</span> { credential, encryptedBlob, eventTemplate, nsecBytes, npub }
-  = <span class="k">await</span> setupKeytr({ userName: <span class="s">'alice'</span>, userDisplayName: <span class="s">'Alice'</span>, rpId: <span class="s">'keytr.org'</span> })
+<span class="c">// Setup: PRF-first with KiH fallback for password managers</span>
+<span class="k">const</span> { eventTemplate, nsecBytes, npub, mode }
+  = <span class="k">await</span> setup({ userName: <span class="s">'alice'</span>, userDisplayName: <span class="s">'Alice'</span>, rpId: <span class="s">'keytr.org'</span> })
 
 <span class="c">// Sign &amp; publish the kind:31777 event to relays</span>
 
-<span class="c">// Login on new device: one biometric tap</span>
-<span class="k">const</span> events = <span class="k">await</span> fetchKeytrEvents(pubkey, relays)
-<span class="k">const</span> { nsecBytes, npub } = <span class="k">await</span> loginWithKeytr(events)</code></pre>
+<span class="c">// Discoverable login: auto-detects PRF vs KiH, one biometric tap</span>
+<span class="k">const</span> { nsecBytes, npub, pubkey } = <span class="k">await</span> discover(relays)</code></pre>
         </div>
         <p class="dev-note">To have your origin authorized for cross-client login, add your domain to the <a href="https://github.com/sovITxyz/keytr.org">origins list</a> via PR.</p>
       </div>
