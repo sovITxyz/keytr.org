@@ -94,7 +94,7 @@
           <div class="step-number">3</div>
           <div class="step-content">
             <h4>Encrypt</h4>
-            <p>keytr tries the passkey's PRF extension first. If the authenticator doesn't support PRF (e.g. 1Password, Bitwarden), it falls back to <strong>Key-in-Handle (KiH)</strong> mode, embedding a random encryption key in the passkey itself. Either way, the key goes through HKDF-SHA256 to derive an AES-256 encryption key.</p>
+            <p>keytr tries the passkey's PRF extension first. If the authenticator doesn't support PRF (e.g. Firefox Android, older security keys), it falls back to <strong>Key-in-Handle (KiH)</strong> mode, embedding a random encryption key in the passkey itself. Either way, the key goes through HKDF-SHA256 to derive an AES-256 encryption key.</p>
           </div>
         </div>
         <div class="flow-step">
@@ -168,7 +168,7 @@
           <h3>Encryption scheme</h3>
           <ul>
             <li><strong>Key source</strong> <span>PRF extension or KiH random key &rarr; HKDF-SHA256</span></li>
-            <li><strong>Two modes</strong> <span>PRF (hardware-bound) or KiH (password manager compatible)</span></li>
+            <li><strong>Two modes</strong> <span>PRF (hardware-bound) or KiH (universal fallback)</span></li>
             <li><strong>Cipher</strong> <span>AES-256-GCM with 12-byte random IV</span></li>
             <li><strong>AAD</strong> <span>Credential ID + mode-specific version byte (prevents substitution, downgrade &amp; cross-mode attacks)</span></li>
           </ul>
@@ -270,7 +270,7 @@
   userName: <span class="s">'alice'</span>, userDisplayName: <span class="s">'Alice'</span>,
   rpId: <span class="s">"keytr.org"</span>
 })
-<span class="c">// mode: 'prf' (hardware-bound) or 'kih' (1Password, Bitwarden, etc.)</span>
+<span class="c">// mode: 'prf' (hardware-bound) or 'kih' (universal fallback)</span>
 
 <span class="c">// Sign &amp; publish</span>
 <span class="k">const</span> signed = finalizeEvent(eventTemplate, nsecBytes)
@@ -366,7 +366,7 @@
           </div>
           <pre><code><span class="k">import</span> { setup, discover, publishKeytrEvent } <span class="k">from</span> <span class="s">'@sovit.xyz/keytr'</span>
 
-<span class="c">// Setup: PRF-first with KiH fallback for password managers</span>
+<span class="c">// Setup: PRF-first with automatic KiH fallback</span>
 <span class="k">const</span> { eventTemplate, nsecBytes, npub, mode }
   = <span class="k">await</span> setup({ userName: <span class="s">'alice'</span>, userDisplayName: <span class="s">'Alice'</span>, rpId: <span class="s">'keytr.org'</span> })
 
