@@ -1,11 +1,12 @@
 {
   "origins": [
-    "https://keytr.org",
     "https://nostkey.org",
     "https://bies.sovit.xyz",
     "https://gitvid.sovit.xyz",
     "https://nostrbook.net",
     "https://sovit.xyz",
-    "https://app.buildinelsalvador.com"
+    "https://app.buildinelsalvador.com",
+    "https://gitvid.net",
+    "https://client.gitvid.net"
   ]
 }
